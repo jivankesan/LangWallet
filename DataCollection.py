@@ -13,7 +13,7 @@ class UserDataCollector:
     
     def __init__(self, user_state):
         self.user_state = user_state
-        self.provider = Web3(Web3.HTTPProvider('https://mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID'))
+        self.provider = Web3(Web3.HTTPProvider('need to figure out link'))
 
     def collect_user_data(self, wallet_address):
         user_metadata = {}
@@ -45,7 +45,7 @@ class UserDataCollector:
                 "from": tx['from'],
                 "to": tx['to'],
                 "value": self.provider.fromWei(tx['value'], 'ether'),
-                # Can add more fields as needed
+              
             }
             trades_data.append(trade_data)
             
@@ -57,7 +57,7 @@ class UserDataCollector:
         # Format the user name for the search query
         formatted_user_name = user_name.lower().replace(" ", "+")
 
-        # Perform a search query on social media platforms (e.g., Twitter)
+        # Perform a search query on twitter (plan to add others later)
         search_url = f"https://twitter.com/search?q={formatted_user_name}"
         response = requests.get(search_url)
         if response.status_code == 200:
@@ -67,21 +67,20 @@ class UserDataCollector:
             # Extract relevant information from the search results
             interests_data['tweets'] = self.extract_tweets(soup)
             interests_data['followers'] = self.extract_followers_count(soup)
-            # Add more fields as needed
+            #can add more fields once it works
 
         return interests_data
 
     def extract_tweets(self, soup):
         tweets = []
-
-        # Find all tweet div elements with the data-testid attribute set to "tweet"
+        
         tweet_divs = soup.find_all("div", {"data-testid": "tweet"})
 
-        # Iterate through each tweet div element
+        # Iterate through tweet div element
         for div in tweet_divs:
             tweet_data = {}
 
-            # Extract the text content of the tweet
+            # Extract the text content 
             tweet_text_element = div.find("div", {"class": "tweet-text"})
             if tweet_text_element is not None:
                 tweet_text = tweet_text_element.get_text().strip()
@@ -95,7 +94,7 @@ class UserDataCollector:
                         tweet_text_embeddings.append(word_embedding)
                 tweet_data["text_embeddings"] = tweet_text_embeddings
 
-            # Extract the username of the tweet author
+            # Extract the username of the tweet
             tweet_author_element = div.find("span", {"class": "username"})
             if tweet_author_element is not None:
                 tweet_data["author"] = tweet_author_element.get_text().strip()
