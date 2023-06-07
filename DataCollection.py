@@ -1,8 +1,16 @@
 from web3 import Web3
 import requests
 from bs4 import BeautifulSoup
+import gensim 
+### tweeting to langwallet, respond to dynamically imaging, tweets in any app, scrapes likes and bookmarks, 
+# window.ai 
+#libraries like gpt index, llama index, (within a thread, having multiple processes, )
+#google bison for free
 
 class UserDataCollector:
+
+    word2vec_model = gensim.models.KeyedVectors.load_word2vec_format('path_to_word2vec_model.bin', binary=True)
+    
     def __init__(self, user_state):
         self.user_state = user_state
         self.provider = Web3(Web3.HTTPProvider('https://mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID'))
@@ -23,8 +31,9 @@ class UserDataCollector:
         user_metadata['state'] = state_metadata
 
         return user_metadata
-
-    def collect_trades_data(self, wallet_address):
+    
+    @classmethod
+    def collect_trades_data(wallet_address) -> list:
         # Implement the logic to collect trades data based on wallet address
         # Can also query a database of stored user data
         trades_data = []
@@ -75,7 +84,16 @@ class UserDataCollector:
             # Extract the text content of the tweet
             tweet_text_element = div.find("div", {"class": "tweet-text"})
             if tweet_text_element is not None:
-                tweet_data["text"] = tweet_text_element.get_text().strip()
+                tweet_text = tweet_text_element.get_text().strip()
+                tweet_data["text"] = tweet_text
+
+                # Store the text as embeddings
+                tweet_text_embeddings = []
+                for word in tweet_text.split():
+                    if word in word2vec_model.vocab:
+                        word_embedding = word2vec_model[word]
+                        tweet_text_embeddings.append(word_embedding)
+                tweet_data["text_embeddings"] = tweet_text_embeddings
 
             # Extract the username of the tweet author
             tweet_author_element = div.find("span", {"class": "username"})
@@ -90,8 +108,8 @@ class UserDataCollector:
             # Add the tweet data to the list of tweets
             if tweet_data:
                 tweets.append(tweet_data)
-
         return tweets
+
 
     def extract_followers_count(self, soup):
         followers_count = 0
@@ -111,8 +129,10 @@ class UserDataCollector:
         return followers_count
 
     def collect_state_metadata(self, user_state):
-        # Implement the logic to collect state-specific metadata
-        # Example: query a database or external source based on user's state
+        # Need to implement-----collect state-specific metadata
+    
         state_metadata = ...
 
         return state_metadata
+
+
